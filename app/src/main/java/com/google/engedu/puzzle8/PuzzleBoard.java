@@ -1,17 +1,12 @@
 package com.google.engedu.puzzle8;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.drawable.BitmapDrawable;
-
 import java.util.ArrayList;
-import java.util.Iterator;
-
 
 public class PuzzleBoard {
 
-    private static final int NUM_TILES = 3;
+    private static final int NUM_TILES            = 4;
     private static final int[][] NEIGHBOUR_COORDS = {
             { -1, 0 },
             { 1, 0 },
@@ -25,21 +20,19 @@ public class PuzzleBoard {
 
     PuzzleBoard(Bitmap bitmap, int parentWidth) {
 
-
         int tileHeight = parentWidth/NUM_TILES;
         int tileWidth  = tileHeight;
-
-        int count  = 0;
+        int count      = 0;
 
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, parentWidth, parentWidth, true);
 
         int rows   = NUM_TILES;
         int cols   = NUM_TILES;
-
-        tiles       = new ArrayList<PuzzleTile>(rows * cols);
+        tiles      = new ArrayList<PuzzleTile>(NUM_TILES * NUM_TILES);
 
         int yAxis = 0;
         for(int x = 0; x < rows; x++) {
+
             int xAxis = 0;
             for(int y = 0; y < cols; y++) {
 
@@ -56,7 +49,6 @@ public class PuzzleBoard {
         steps = 0;
 
     }
-
     PuzzleBoard(PuzzleBoard otherBoard) {
         previousBoard = otherBoard;
         tiles         = (ArrayList<PuzzleTile>) otherBoard.tiles.clone();
@@ -163,6 +155,11 @@ public class PuzzleBoard {
     }
 
     public int priority() {
+        for(int i = 0; i < tiles.size(); i++){
+            PuzzleTile tile = tiles.get(i);
+
+        }
+
         return 0;
     }
 
