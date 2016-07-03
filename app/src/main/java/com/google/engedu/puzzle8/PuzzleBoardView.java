@@ -8,8 +8,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.*;
+import java.util.PriorityQueue;
 
 public class PuzzleBoardView extends View {
     public static final int NUM_SHUFFLE_STEPS = 40;
@@ -25,7 +25,7 @@ public class PuzzleBoardView extends View {
     }
 
     public void initialize(Bitmap imageBitmap) {
-        int width = getWidth();
+        int width   = getWidth();
         puzzleBoard = new PuzzleBoard(imageBitmap, width);
     }
 
@@ -82,5 +82,37 @@ public class PuzzleBoardView extends View {
     }
 
     public void solve() {
+
+        PriorityQueueComparator comparator = new PriorityQueueComparator();
+        PriorityQueue<PuzzleBoard> pq = new PriorityQueue<PuzzleBoard>(9, comparator);
+
+        pq.add(puzzleBoard);
+
+        while(!pq.isEmpty()){
+            // Remove from the priority queue the PuzzleBoard with the lowest priority
+            PuzzleBoard p = pq.remove();
+
+            //If the removed PuzzleBoard is not the solution, insert onto the PriorityQueue all neighbouring states (reusing the neighbours method).
+            if(!p.resolved()){
+                ArrayList<PuzzleBoard> possibleMoves = puzzleBoard.neighbours();
+                for(int i = 0; i < possibleMoves.size(); i++){
+                    pq.add(possibleMoves.get(i));
+                }
+            }
+
+            // If it is the solution, create an ArrayList of all the PuzzleBoards leading to this solution (you will need to create a getter for PuzzleBoard.previousBoard). Then use Collections.reverse to turn it into an in-order sequence of all the steps to solving the puzzle. If you copy that ArrayList to PuzzleBoardView.animation, the given implementation of onDraw will animate the sequence of steps to solve the puzzle.
+            if(p.resolved()){
+                ArrayList<PuzzleBoard> solutions = new ArrayList<>();
+                solutions.add(p.getPreviousBoard());
+                Collections.reverse(solutions);
+                animation = solutions;
+            }
+
+
+
+        }
+
+
     }
+
 }

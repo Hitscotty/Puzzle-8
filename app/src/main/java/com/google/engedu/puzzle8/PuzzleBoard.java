@@ -3,6 +3,7 @@ package com.google.engedu.puzzle8;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class PuzzleBoard {
 
@@ -49,10 +50,14 @@ public class PuzzleBoard {
         steps = 0;
 
     }
+
     PuzzleBoard(PuzzleBoard otherBoard) {
         previousBoard = otherBoard;
         tiles         = (ArrayList<PuzzleTile>) otherBoard.tiles.clone();
         steps         = otherBoard.steps + 1;
+    }
+    PuzzleBoard(){
+        steps = 0;
     }
 
     public void reset() {
@@ -154,13 +159,62 @@ public class PuzzleBoard {
         return neighbours;
     }
 
+    /**
+     * Sums up the total of the steps required to move each piece to it's proper destination
+     * with the current total steps from a solution as a "manhatten distance"
+     * Use: for priority values in a priority queue
+     * @return
+     */
+
     public int priority() {
+        ArrayList<Integer> manhatten = new ArrayList<>(NUM_TILES * NUM_TILES);
+        PuzzleBoard temp             = new PuzzleBoard(this);
+
         for(int i = 0; i < tiles.size(); i++){
+
             PuzzleTile tile = tiles.get(i);
+            int moves       = 0;
+
+            if(tile == null){
+                continue;
+            }
+            //if at index goal we are done;
+            if(tile.getNumber() == i) {
+                manhatten.add(moves);
+            }
+
+            //mmust swap on smaller index to get to index goal faster
+            int swap  = i;
+
+            //find smallest steps to goal i
+            while(tile.getNumber() != i) {
+
+                int tileX = getX(swap);
+                int tileY = getY(swap);
+
+                for (int[] delta : NEIGHBOUR_COORDS) {
+
+                    int nextTileX = tileX + delta[0];
+                    int nextTileY = tileY + delta[1];
+
+                    if (tileX < NUM_TILES && tileX >= 0 && nextTileY < NUM_TILES && nextTileY >= 0) {
+                        int index = XYtoIndex(nextTileX, nextTileY);
+                        if (index < i || index == i) {
+                            swap = index;
+                        }
+                    }
+
+                }
+
+                temp.swapTiles(i, swap);
+                moves++;
+            }
+
+            manhatten.add(moves);
 
         }
 
-        return 0;
+        return getSum(manhatten) + steps;
     }
 
     //                          helper functions
@@ -174,6 +228,18 @@ public class PuzzleBoard {
         return index / NUM_TILES;
     }
 
+    // used to calculate manhatten distance
+    public int getSum(ArrayList<Integer> list){
+        int sum = 0;
+
+        for(int i = 0; i < list.size(); i++){
+            sum += list.get(i);
+        }
+
+        return sum;
+    }
+
+    //gets the position of the empty box in the scramble
     public int getNullIndex(){
 
         for(int i = 0; i < tiles.size(); i++){
@@ -182,4 +248,16 @@ public class PuzzleBoard {
         }
         return -1;
     }
+
+    public PuzzleBoard getPreviousBoard(){
+        return previousBoard;
+    }
+
+    public ArrayList<PuzzleTile> getTiles(){
+        return tiles;
+    }
+
+
+
+
 }
