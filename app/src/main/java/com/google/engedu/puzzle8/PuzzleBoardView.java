@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
@@ -56,7 +57,6 @@ public class PuzzleBoardView extends View {
                 // Do something. Then:
                 int size = puzzleBoard.neighbours().size();
                 puzzleBoard = puzzleBoard.neighbours().get(random.nextInt(size));
-                puzzleBoard.reset();
                 invalidate();
             }
         }
@@ -84,28 +84,43 @@ public class PuzzleBoardView extends View {
     public void solve() {
 
         PriorityQueueComparator comparator = new PriorityQueueComparator();
-        PriorityQueue<PuzzleBoard> pq = new PriorityQueue<PuzzleBoard>(9, comparator);
+        PriorityQueue<PuzzleBoard> pq = new PriorityQueue<PuzzleBoard>(10,comparator);
+
+        puzzleBoard.reset();
+
 
         pq.add(puzzleBoard);
 
         while(!pq.isEmpty()){
             // Remove from the priority queue the PuzzleBoard with the lowest priority
-            PuzzleBoard p = pq.remove();
+            PuzzleBoard p = pq.poll();
 
             //If the removed PuzzleBoard is not the solution, insert onto the PriorityQueue all neighbouring states (reusing the neighbours method).
             if(!p.resolved()){
-                ArrayList<PuzzleBoard> possibleMoves = puzzleBoard.neighbours();
+                ArrayList<PuzzleBoard> possibleMoves = p.neighbours();
                 for(int i = 0; i < possibleMoves.size(); i++){
-                    pq.add(possibleMoves.get(i));
+                    if(!possibleMoves.get(i).equals(p.getPreviousBoard())){
+                        pq.add(possibleMoves.get(i));
+                    }
                 }
+
             }
 
             // If it is the solution, create an ArrayList of all the PuzzleBoards leading to this solution (you will need to create a getter for PuzzleBoard.previousBoard). Then use Collections.reverse to turn it into an in-order sequence of all the steps to solving the puzzle. If you copy that ArrayList to PuzzleBoardView.animation, the given implementation of onDraw will animate the sequence of steps to solve the puzzle.
             if(p.resolved()){
+                pq.clear();
                 ArrayList<PuzzleBoard> solutions = new ArrayList<>();
-                solutions.add(p.getPreviousBoard());
+
+                while(p.getPreviousBoard() != null){
+                    solutions.add(p);
+                    p = p.getPreviousBoard();
+
+                }
+
                 Collections.reverse(solutions);
                 animation = solutions;
+                invalidate();
+
             }
 
 

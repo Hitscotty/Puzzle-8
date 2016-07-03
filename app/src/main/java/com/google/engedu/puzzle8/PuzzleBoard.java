@@ -7,7 +7,7 @@ import java.util.Comparator;
 
 public class PuzzleBoard {
 
-    private static final int NUM_TILES            = 4;
+    private static final int NUM_TILES            = 3;
     private static final int[][] NEIGHBOUR_COORDS = {
             { -1, 0 },
             { 1, 0 },
@@ -56,12 +56,12 @@ public class PuzzleBoard {
         tiles         = (ArrayList<PuzzleTile>) otherBoard.tiles.clone();
         steps         = otherBoard.steps + 1;
     }
-    PuzzleBoard(){
-        steps = 0;
-    }
+
 
     public void reset() {
         // Nothing for now but you may have things to reset once you implement the solver.
+        this.steps         = 0;
+        this.previousBoard = null;
     }
 
     @Override
@@ -167,11 +167,21 @@ public class PuzzleBoard {
      */
 
     public int priority() {
-        ArrayList<Integer> manhatten = new ArrayList<>(NUM_TILES * NUM_TILES);
-        PuzzleBoard temp             = new PuzzleBoard(this);
+        int manhattenDistance = steps;
 
-        for(int i = 0; i < tiles.size(); i++){
+        for(int i = 0 ; i > tiles.size(); i++){
 
+            PuzzleTile tile = tiles.get(i);
+            if(tile == null) continue;
+            int tileIndex   = tile.getNumber();
+
+            int xDelta  = Math.abs(getX(tileIndex) - getX(i));
+            int yDelta  = Math.abs(getY(tileIndex) - getY(i));
+
+            manhattenDistance += (xDelta + yDelta);
+        }
+       /** for(int i = 0; i < tiles.size(); i++){
+            PuzzleBoard temp             = new PuzzleBoard(this);
             PuzzleTile tile = tiles.get(i);
             int moves       = 0;
 
@@ -187,7 +197,7 @@ public class PuzzleBoard {
             int swap  = i;
 
             //find smallest steps to goal i
-            while(tile.getNumber() != i) {
+            while(tile.getNumber() != swap) {
 
                 int tileX = getX(swap);
                 int tileY = getY(swap);
@@ -199,7 +209,7 @@ public class PuzzleBoard {
 
                     if (tileX < NUM_TILES && tileX >= 0 && nextTileY < NUM_TILES && nextTileY >= 0) {
                         int index = XYtoIndex(nextTileX, nextTileY);
-                        if (index < i || index == i) {
+                        if (index < tile.getNumber() && index >= 0 || index == tile.getNumber() && index >= 0) {
                             swap = index;
                         }
                     }
@@ -212,9 +222,9 @@ public class PuzzleBoard {
 
             manhatten.add(moves);
 
-        }
+        }*/
 
-        return getSum(manhatten) + steps;
+        return manhattenDistance;
     }
 
     //                          helper functions
@@ -256,8 +266,5 @@ public class PuzzleBoard {
     public ArrayList<PuzzleTile> getTiles(){
         return tiles;
     }
-
-
-
 
 }
