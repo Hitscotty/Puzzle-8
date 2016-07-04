@@ -86,14 +86,14 @@ public class PuzzleBoardView extends View {
         PriorityQueueComparator comparator = new PriorityQueueComparator();
         PriorityQueue<PuzzleBoard> pq = new PriorityQueue<PuzzleBoard>(10,comparator);
 
+       // PriorityQueue  pq = new PriorityQueue();
         puzzleBoard.reset();
-
 
         pq.add(puzzleBoard);
 
         while(!pq.isEmpty()){
             // Remove from the priority queue the PuzzleBoard with the lowest priority
-            PuzzleBoard p = pq.poll();
+             PuzzleBoard p = pq.remove();
 
             //If the removed PuzzleBoard is not the solution, insert onto the PriorityQueue all neighbouring states (reusing the neighbours method).
             if(!p.resolved()){
